@@ -1,5 +1,3 @@
-#include <vector>
-
 #include <Adafruit_NeoPixel.h>
 #ifdef __AVR__
   #include <avr/power.h>
@@ -22,7 +20,8 @@
 #define LDR_THRESHOLD_HIGH  600
 #define NUMPIXELS_DIGITS    21
 #define NUMPIXELS_HOURS     12
-#define NUMLEDS_PER_SEGMENT 7
+#define NUMSEGMENTS         7
+#define NUMSTRIPS           3
 
 // Real-time clock
 RTC_DS3231 rtc;
@@ -32,11 +31,6 @@ int currMinute, prevMinute;
 bool summerTime;
 
 int photocellReading;
-uint32_t colorLight = strip.Color(220, 220, 255);
-uint32_t colorDark = strip.Color(50, 0, 0);
-uint32_t colorOff = strip.Color(0, 0, 0);
-uint32_t currColor = colorDark;
-
 
 // Setup NeoPixel library: create the different LED strips
 Adafruit_NeoPixel digit1Strip = Adafruit_NeoPixel(NUMPIXELS_DIGITS, DIGIT1_PIN,
@@ -44,9 +38,13 @@ Adafruit_NeoPixel digit1Strip = Adafruit_NeoPixel(NUMPIXELS_DIGITS, DIGIT1_PIN,
 Adafruit_NeoPixel digit2Strip = Adafruit_NeoPixel(NUMPIXELS_DIGITS, DIGIT2_PIN, 
                                                     NEO_RGB + NEO_KHZ400);
 Adafruit_NeoPixel hoursStrip = Adafruit_NeoPixel(NUMPIXELS_HOURS, HOURS_PIN, 
-                                                    NEO_RGB + NEO_KHZ400);
-std::vector<Adafruit_NeoPixel> strips = { digit1Strip, digit2Strip, hoursStrip };
+                                                    NEO_RGB + NEO_KHZ400);                                             
+Adafruit_NeoPixel strips [NUMSTRIPS] = { digit1Strip, digit2Strip, hoursStrip };
 
+uint32_t colorLight = hoursStrip.Color(220, 220, 255);
+uint32_t colorDark = hoursStrip.Color(50, 0, 0);
+uint32_t colorOff = hoursStrip.Color(0, 0, 0);
+uint32_t currColor = colorDark;
 
 // Segments:
 //   1
@@ -55,7 +53,7 @@ std::vector<Adafruit_NeoPixel> strips = { digit1Strip, digit2Strip, hoursStrip }
 // 4   6
 //   5
 // Activated segments per digit
-std::vector<std::vector<int>> segments = {
+int segments [10][7] = {
     { true, true, true, false, true, true, true },     // 0: 0, 1, 2, 4, 5, 6
     { false, false, true, false, false, false, true }, // 1: 2, 6
     { false, true, true, true, true, true, false },    // 2: 1, 2, 3, 4, 5
@@ -66,7 +64,7 @@ std::vector<std::vector<int>> segments = {
     { false, true, true, false, false, false, true },  // 7: 1, 2, 6
     { true, true, true, true, true, true, true },      // 8: 0, 1, 2, 3, 4, 5, 6
     { true, true, true, true, false, true, true }      // 9: 0, 1, 2, 3, 5, 6
-}
+};
 
 void setup() {
     Serial.begin(9600);
@@ -77,7 +75,7 @@ void setup() {
     if (F_CPU == 16000000) clock_prescale_set(clock_div_1);
 #endif
 
-    for (int i = 0; i < strips.size(); i++) {
+    for (int i = 0; i < NUMSTRIPS; i++) {
         strips[i].begin(); // This initializes the NeoPixel library.
         strips[i].setBrightness(30);
     }
@@ -169,7 +167,7 @@ void showMinute(int minute, uint32_t color) {
 //   15 16 17 
 void showDigit(Adafruit_NeoPixel strip, int digit, uint32_t color) {
     for (int i = 0; i < NUMPIXELS_DIGITS; i++) {
-        if (segments[digit][i / NUMLEDS_PER_SEGMENT]) {
+        if (segments[digit][i / NUMSEGMENTS]) {
             strip.setPixelColor(i, color);
         } else {
             strip.setPixelColor(i, colorOff);
