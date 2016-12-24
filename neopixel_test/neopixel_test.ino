@@ -13,7 +13,7 @@
 // On a Trinket or Gemma we suggest changing this to 1
 #define PIN            5
 #define LDR_PIN        0
-#define TOGGLE_PIN     9
+#define TOGGLE_PIN     4
 
 RTC_DS3231 rtc;
 
@@ -21,7 +21,7 @@ RTC_DS3231 rtc;
 #define LDR_THRESHOLD_HIGH  600
 
 // How many NeoPixels are attached to the Arduino?
-#define NUMPIXELS      5
+#define NUMPIXELS      21
 
 // When we setup the NeoPixel library, we tell it how many pixels, and which pin to use to send signals.
 // Note that for older NeoPixel strips you might need to change the third parameter--see the strandtest
@@ -31,7 +31,7 @@ Adafruit_NeoPixel strip = Adafruit_NeoPixel(NUMPIXELS, PIN, NEO_RGB + NEO_KHZ400
 int delayval = 500; // delay for half a second
 
 void setup() {
-  Serial.begin(9600);
+//  Serial.begin(9600);
   
   // This is for Trinket 5V 16MHz, you can remove these three lines if you are not using a Trinket
 #if defined (__AVR_ATtiny85__)
@@ -45,7 +45,7 @@ void setup() {
   pinMode(TOGGLE_PIN, INPUT);
 
   if (! rtc.begin()) {
-    Serial.println("Couldn't find RTC");
+//    Serial.println("Couldn't find RTC");
     while (1);
   }
 
@@ -55,19 +55,19 @@ void setup() {
 
 void loop() {
   DateTime now = rtc.now();
-  Serial.print(now.hour(), DEC);
-  Serial.print(':');
-  Serial.print(now.minute(), DEC);
-  Serial.print(':');
-  Serial.print(now.second(), DEC);
-  Serial.println();
+//  Serial.print(now.hour(), DEC);
+//  Serial.print(':');
+//  Serial.print(now.minute(), DEC);
+//  Serial.print(':');
+//  Serial.print(now.second(), DEC);
+//  Serial.println();
     
 //  simple();
   if (digitalRead(TOGGLE_PIN) == HIGH) {
     int photocellReading = analogRead(LDR_PIN);  
  
-    Serial.print("Analog reading = ");
-    Serial.println(photocellReading);
+//    Serial.print("Analog reading = ");
+//    Serial.println(photocellReading);
 
     if (photocellReading > LDR_THRESHOLD_LOW) {
       colorWipe(strip.Color(220, 220, 255), 1000);
